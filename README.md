@@ -1,2 +1,0 @@
-# MMGame
-libGDX game 
