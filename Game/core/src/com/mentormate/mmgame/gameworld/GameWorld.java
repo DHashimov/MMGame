@@ -1,21 +1,20 @@
 package com.mentormate.mmgame.gameworld;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Rectangle;
+import com.mentormate.mmgame.gameobjects.Logo;
 
 public class GameWorld {
+	private Logo logo;
 
-	private Rectangle rect = new Rectangle(0, 0, 17, 12);
-
-	public void update(float delta) {
-		Gdx.app.log("GameWorld", "update");
-		rect.x++;
-		if (rect.x > 137) {
-			rect.x = 0;
-		}
+	public GameWorld(int midPointY) {
+		logo = new Logo(33, midPointY - 5, 17, 12);
 	}
 
-	public Rectangle getRect() {
-		return rect;
+	public void update(float delta) {
+		logo.update(delta);
+	}
+
+	public Logo getLogo() {
+		return logo;
+
 	}
 }
