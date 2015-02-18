@@ -21,10 +21,11 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 		frontGrass = new Grass(0, yPos, 143, 11, SCROLL_SPEED);
 		backGrass = new Grass(frontGrass.getTailX(), yPos, 143, 11,
 				SCROLL_SPEED);
-		pipe1 = new Pipe(210, 0, 22, 60, SCROLL_SPEED);
+		pipe1 = new Pipe(210, 0, 22, 60, SCROLL_SPEED, yPos);
 		bonusLogo1 = new BonusLogo(pipe1.getTailX() + PIPE_GAP / 2, 50, 16, 11,
 				SCROLL_SPEED);
-		pipe2 = new Pipe(pipe1.getTailX() + PIPE_GAP, 0, 22, 60, SCROLL_SPEED);
+		pipe2 = new Pipe(pipe1.getTailX() + PIPE_GAP, 0, 22, 60, SCROLL_SPEED,
+				yPos);
 		bonusLogo2 = new BonusLogo(pipe2.getTailX() + PIPE_GAP / 2, 50, 16, 11,
 				SCROLL_SPEED);
 	}
@@ -58,6 +59,20 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 
 		}
 
+	}
+
+	public void stop() {
+		frontGrass.stop();
+		backGrass.stop();
+		pipe1.stop();
+		pipe2.stop();
+		bonusLogo1.stop();
+		bonusLogo2.stop();
+	}
+
+	// Return true if ANY pipe hits the logo.
+	public boolean collides(Logo logo) {
+		return (pipe1.collides(logo) || pipe2.collides(logo));
 	}
 
 	// The getters for our five instance variables
