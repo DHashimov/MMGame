@@ -17,6 +17,8 @@ public class AssetLoader {
 
 	public static TextureRegion barTopUp, barTopDown, bar;
 
+	public static TextureRegion androidLogo, appleLogo;
+
 	public static void load() {
 
 		texture = new Texture(Gdx.files.internal("data/texture.png"));
@@ -45,6 +47,12 @@ public class AssetLoader {
 		// Create by flipping existing skullUp
 		barTopDown = new TextureRegion(barTopUp);
 		barTopDown.flip(false, true);
+
+		androidLogo = new TextureRegion(texture, 136, 22, 11, 14);
+		androidLogo.flip(false, true);
+
+		appleLogo = new TextureRegion(texture, 147, 22, 11, 14);
+		appleLogo.flip(false, true);
 
 		bar = new TextureRegion(texture, 136, 16, 22, 3);
 		bar.flip(false, true);

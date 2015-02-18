@@ -3,13 +3,35 @@ package com.mentormate.mmgame.gameworld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.mentormate.mmgame.gameobjects.BonusLogo;
+import com.mentormate.mmgame.gameobjects.Grass;
 import com.mentormate.mmgame.gameobjects.Logo;
+import com.mentormate.mmgame.gameobjects.Pipe;
+import com.mentormate.mmgame.gameobjects.ScrollHandler;
 import com.mentormate.mmgame.zbhelpers.AssetLoader;
 
 public class GameRenderer {
+
+	// Game Objects
+	private Logo logo;
+
+	// Game Assets
+	private TextureRegion bg, grass;
+	private Animation logoAnimation;
+	private TextureRegion logoMid, logoDown, logoUp;
+	private TextureRegion barTopUp, barTopDown, bar, bonusLogoAndroid,
+			bonusLogoApple;
+
+	private Logo bird;
+	private ScrollHandler scroller;
+	private Grass frontGrass, backGrass;
+	private Pipe pipe1, pipe2;
+	private BonusLogo bLogo1, bLogo2;
 
 	private GameWorld myWorld;
 	private OrthographicCamera cam;
@@ -36,22 +58,95 @@ public class GameRenderer {
 		batcher.setProjectionMatrix(cam.combined);
 		shapeRenderer = new ShapeRenderer();
 		shapeRenderer.setProjectionMatrix(cam.combined);
+
+		// Call helper methods to initialize instance variables
+		initGameObjects();
+		initAssets();
+	}
+
+	private void initGameObjects() {
+		logo = myWorld.getLogo();
+		scroller = myWorld.getScroller();
+		frontGrass = scroller.getFrontGrass();
+		backGrass = scroller.getBackGrass();
+		pipe1 = scroller.getPipe1();
+		pipe2 = scroller.getPipe2();
+		bLogo1 = scroller.getBonusLogo1();
+		bLogo2 = scroller.getBonusLogo2();
+	}
+
+	private void initAssets() {
+		bg = AssetLoader.bg;
+		grass = AssetLoader.grass;
+		logoAnimation = AssetLoader.logoAnimation;
+		logoMid = AssetLoader.logo;
+		logoDown = AssetLoader.logoDown;
+		logoUp = AssetLoader.logoUp;
+		barTopUp = AssetLoader.barTopUp;
+		barTopDown = AssetLoader.barTopDown;
+		bar = AssetLoader.bar;
+		bonusLogoAndroid = AssetLoader.androidLogo;
+		bonusLogoApple = AssetLoader.appleLogo;
+	}
+
+	private void drawGrass() {
+		// Draw the grass
+		batcher.draw(grass, frontGrass.getX(), frontGrass.getY(),
+				frontGrass.getWidth(), frontGrass.getHeight());
+		batcher.draw(grass, backGrass.getX(), backGrass.getY(),
+				backGrass.getWidth(), backGrass.getHeight());
+	}
+
+	private void drawBarTops() {
+		// Temporary code! Sorry about the mess :)
+		// We will fix this when we finish the Pipe class.
+
+		batcher.draw(barTopUp, pipe1.getX() - 1,
+				pipe1.getY() + pipe1.getHeight() - 14, 24, 14);
+		batcher.draw(barTopDown, pipe1.getX() - 1,
+				pipe1.getY() + pipe1.getHeight() + 45, 24, 14);
+
+		batcher.draw(barTopUp, pipe2.getX() - 1,
+				pipe2.getY() + pipe2.getHeight() - 14, 24, 14);
+		batcher.draw(barTopDown, pipe2.getX() - 1,
+				pipe2.getY() + pipe2.getHeight() + 45, 24, 14);
+
+	}
+
+	private void drawPipes() {
+		// Temporary code! Sorry about the mess :)
+		// We will fix this when we finish the Pipe class.
+		batcher.draw(bar, pipe1.getX(), pipe1.getY(), pipe1.getWidth(),
+				pipe1.getHeight());
+		batcher.draw(bar, pipe1.getX(), pipe1.getY() + pipe1.getHeight() + 45,
+				pipe1.getWidth(), midPointY + 66 - (pipe1.getHeight() + 45));
+
+		batcher.draw(bar, pipe2.getX(), pipe2.getY(), pipe2.getWidth(),
+				pipe2.getHeight());
+		batcher.draw(bar, pipe2.getX(), pipe2.getY() + pipe2.getHeight() + 45,
+				pipe2.getWidth(), midPointY + 66 - (pipe2.getHeight() + 45));
+
+	}
+
+	private void drawLogos() {
+		// Draw the first logo
+		batcher.draw(bonusLogoAndroid, bLogo1.getX(), bLogo1.getY(),
+				bLogo1.getWidth(), bLogo1.getHeight());
+
+		// Draw the second logo
+		batcher.draw(bonusLogoApple, bLogo2.getX(), bLogo2.getY(),
+				bLogo2.getWidth(), bLogo2.getHeight());
 	}
 
 	public void render(float runTime) {
 
-		// We will move these outside of the loop for performance later.
-		Logo logo = myWorld.getLogo();
-
-		// Fill the entire screen with black, to prevent potential flickering.
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		// Begin ShapeRenderer
 		shapeRenderer.begin(ShapeType.Filled);
 
 		// Draw Background color
-		shapeRenderer.setColor(55 / 255.0f, 80 / 255.0f, 100 / 255.0f, 1);
+		shapeRenderer.setColor(108 / 255.0f, 180 / 255.0f, 226 / 255.0f, 1);
 		shapeRenderer.rect(0, 0, 136, midPointY + 66);
 
 		// Draw Grass
@@ -62,27 +157,37 @@ public class GameRenderer {
 		shapeRenderer.setColor(147 / 255.0f, 80 / 255.0f, 27 / 255.0f, 1);
 		shapeRenderer.rect(0, midPointY + 77, 136, 52);
 
-		// End ShapeRenderer
 		shapeRenderer.end();
 
-		// Begin SpriteBatch
 		batcher.begin();
-		// Disable transparency
-		// This is good for performance when drawing images that do not require
-		// transparency.
 		batcher.disableBlending();
-		batcher.draw(AssetLoader.bg, 0, midPointY + 23, 136, 43);
+		batcher.draw(bg, 0, midPointY + 23, 136, 43);
 
-		// The bird needs transparency, so we enable that again.
+		// 1. Draw Grass
+		drawGrass();
+
+		// 2. Draw Pipes
+		drawPipes();
 		batcher.enableBlending();
 
-		// Draw logo at its coordinates. Retrieve the Animation object from
-		// AssetLoader
-		// Pass in the runTime variable to get the current frame.
-		batcher.draw(AssetLoader.logoAnimation.getKeyFrame(runTime),
-				logo.getX(), logo.getY(), logo.getWidth(), logo.getHeight());
+		// 3. Draw Bar Tops (requires transparency)
+		drawBarTops();
 
-		// End SpriteBatch
+		if (logo.shouldntFlap()) {
+			batcher.draw(logoMid, logo.getX(), logo.getY(),
+					logo.getWidth() / 2.0f, logo.getHeight() / 2.0f,
+					logo.getWidth(), logo.getHeight(), 1, 1, logo.getRotation());
+
+		} else {
+			batcher.draw(logoAnimation.getKeyFrame(runTime), logo.getX(),
+					logo.getY(), logo.getWidth() / 2.0f,
+					logo.getHeight() / 2.0f, logo.getWidth(), logo.getHeight(),
+					1, 1, logo.getRotation());
+		}
+
+		batcher.end();
+		batcher.begin();
+		drawLogos();
 		batcher.end();
 
 	}
