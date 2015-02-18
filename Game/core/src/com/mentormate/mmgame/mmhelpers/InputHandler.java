@@ -1,4 +1,4 @@
-package com.mentormate.mmgame.zbhelpers;
+package com.mentormate.mmgame.mmhelpers;
 
 import com.badlogic.gdx.InputProcessor;
 import com.mentormate.mmgame.gameobjects.Logo;

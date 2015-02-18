@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.mentormate.mmgame.gameworld.GameRenderer;
 import com.mentormate.mmgame.gameworld.GameWorld;
-import com.mentormate.mmgame.zbhelpers.InputHandler;
+import com.mentormate.mmgame.mmhelpers.InputHandler;
 
 public class GameScreen implements Screen {
 

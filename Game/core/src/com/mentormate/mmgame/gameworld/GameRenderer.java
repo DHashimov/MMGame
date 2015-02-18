@@ -1,7 +1,6 @@
 package com.mentormate.mmgame.gameworld;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -14,7 +13,7 @@ import com.mentormate.mmgame.gameobjects.Grass;
 import com.mentormate.mmgame.gameobjects.Logo;
 import com.mentormate.mmgame.gameobjects.Pipe;
 import com.mentormate.mmgame.gameobjects.ScrollHandler;
-import com.mentormate.mmgame.zbhelpers.AssetLoader;
+import com.mentormate.mmgame.mmhelpers.AssetLoader;
 
 public class GameRenderer {
 
@@ -189,6 +188,16 @@ public class GameRenderer {
 		batcher.end();
 		batcher.begin();
 		drawLogos();
+
+		// Convert integer into String
+		String score = myWorld.getScore() + "";
+
+		// Draw shadow first
+		AssetLoader.shadow.draw(batcher, "" + myWorld.getScore(), (136 / 2)
+				- (3 * score.length()), 12);
+		// Draw text
+		AssetLoader.font.draw(batcher, "" + myWorld.getScore(), (136 / 2)
+				- (3 * score.length() - 1), 11);
 		batcher.end();
 
 	}

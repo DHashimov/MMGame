@@ -2,6 +2,7 @@ package com.mentormate.mmgame.gameobjects;
 
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.mentormate.mmgame.mmhelpers.AssetLoader;
 
 public class Logo {
 
@@ -13,6 +14,8 @@ public class Logo {
 	private int width;
 	private int height;
 
+	private boolean isAlive;
+
 	private Circle boundingCircle;
 
 	public Logo(float x, float y, int width, int height) {
@@ -22,6 +25,7 @@ public class Logo {
 		velocity = new Vector2(0, 0);
 		acceleration = new Vector2(0, 460);
 		boundingCircle = new Circle();
+		isAlive = true;
 	}
 
 	public void update(float delta) {
@@ -48,7 +52,7 @@ public class Logo {
 		}
 
 		// Rotate clockwise
-		if (isFalling()) {
+		if (isFalling() || !isAlive) {
 			rotation += 480 * delta;
 			if (rotation > 90) {
 				rotation = 90;
@@ -62,11 +66,23 @@ public class Logo {
 	}
 
 	public boolean shouldntFlap() {
-		return velocity.y > 70;
+		return velocity.y > 70 || !isAlive;
 	}
 
 	public void onClick() {
-		velocity.y = -140;
+		if (isAlive) {
+			AssetLoader.flap.play();
+			velocity.y = -140;
+		}
+	}
+
+	public void die() {
+		isAlive = false;
+		velocity.y = 0;
+	}
+
+	public void decelerate() {
+		acceleration.y = 0;
 	}
 
 	public float getX() {
@@ -91,6 +107,10 @@ public class Logo {
 
 	public Circle getBoundingCircle() {
 		return boundingCircle;
+	}
+
+	public boolean isAlive() {
+		return isAlive;
 	}
 
 }

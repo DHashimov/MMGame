@@ -2,8 +2,8 @@ package com.mentormate.mmgame;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.mentormate.mmgame.mmhelpers.AssetLoader;
 import com.mentormate.mmgame.screens.GameScreen;
-import com.mentormate.mmgame.zbhelpers.AssetLoader;
 
 public class MMGame extends Game {
 

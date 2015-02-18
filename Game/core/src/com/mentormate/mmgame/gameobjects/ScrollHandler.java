@@ -1,10 +1,14 @@
 package com.mentormate.mmgame.gameobjects;
 
+import com.mentormate.mmgame.gameworld.GameWorld;
+import com.mentormate.mmgame.mmhelpers.AssetLoader;
+
 public class ScrollHandler {// ScrollHandler will create all six objects that
 							// we need.
 	private Grass frontGrass, backGrass;
 	private Pipe pipe1, pipe2;
 	private BonusLogo bonusLogo1, bonusLogo2;
+	private GameWorld gameWorld;
 
 	// ScrollHandler will use the constants below to determine
 	// how fast we need to scroll and also determine
@@ -16,8 +20,8 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 
 	// Constructor receives a float that tells us where we need to create our
 	// Grass and Pipe objects.
-	public ScrollHandler(float yPos) {
-
+	public ScrollHandler(GameWorld gameWorld, float yPos) {
+		this.gameWorld = gameWorld;
 		frontGrass = new Grass(0, yPos, 143, 11, SCROLL_SPEED);
 		backGrass = new Grass(frontGrass.getTailX(), yPos, 143, 11,
 				SCROLL_SPEED);
@@ -75,6 +79,32 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 		return (pipe1.collides(logo) || pipe2.collides(logo));
 	}
 
+	public boolean scored(Logo logo) {
+
+		if (bonusLogo1.collides(logo)) {
+			if (!bonusLogo1.isScored()) {
+				bonusLogo1.setScored(true);
+				AssetLoader.coin.play();
+				addScore(1);
+				return true;
+			} else {
+				return true;
+			}
+		} else if (bonusLogo2.collides(logo)) {
+			if (!bonusLogo2.isScored()) {
+				bonusLogo2.setScored(true);
+				AssetLoader.coin.play();
+				addScore(1);
+				return true;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+
+	}
+
 	// The getters for our five instance variables
 	public Grass getFrontGrass() {
 		return frontGrass;
@@ -98,6 +128,10 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 
 	public BonusLogo getBonusLogo2() {
 		return bonusLogo2;
+	}
+
+	private void addScore(int increment) {
+		gameWorld.addScore(increment);
 	}
 
 }
