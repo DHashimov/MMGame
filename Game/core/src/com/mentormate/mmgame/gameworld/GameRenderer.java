@@ -1,7 +1,14 @@
 package com.mentormate.mmgame.gameworld;
 
+import java.util.List;
+
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenEquations;
+import aurelienribon.tweenengine.TweenManager;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,6 +21,10 @@ import com.mentormate.mmgame.gameobjects.Logo;
 import com.mentormate.mmgame.gameobjects.Pipe;
 import com.mentormate.mmgame.gameobjects.ScrollHandler;
 import com.mentormate.mmgame.mmhelpers.AssetLoader;
+import com.mentormate.mmgame.mmhelpers.InputHandler;
+import com.mentormate.mmgame.tweenaccessors.Value;
+import com.mentormate.mmgame.tweenaccessors.ValueAccessor;
+import com.mentormate.mmgame.ui.SimpleButton;
 
 public class GameRenderer {
 
@@ -21,13 +32,14 @@ public class GameRenderer {
 	private Logo logo;
 
 	// Game Assets
-	private TextureRegion bg, grass;
 	private Animation logoAnimation;
-	private TextureRegion logoMid, logoDown, logoUp;
+	private TextureRegion bg, grass;
+	private TextureRegion logoMid, mmGameLogo;
 	private TextureRegion barTopUp, barTopDown, bar, bonusLogoAndroid,
 			bonusLogoApple;
+	private TextureRegion ready, gameOver, highScore, scoreboard, star, noStar,
+			retry;
 
-	private Logo bird;
 	private ScrollHandler scroller;
 	private Grass frontGrass, backGrass;
 	private Pipe pipe1, pipe2;
@@ -40,7 +52,15 @@ public class GameRenderer {
 	private SpriteBatch batcher;
 
 	private int midPointY;
-	private int gameHeight;
+
+	// Tween stuff
+	private TweenManager manager;
+	private Value alpha = new Value();
+
+	private Color transitionColor;
+
+	// Buttons
+	private List<SimpleButton> menuButtons;
 
 	public GameRenderer(GameWorld world, int gameHeight, int midPointY) {
 		myWorld = world;
@@ -48,8 +68,10 @@ public class GameRenderer {
 		// The word "this" refers to this instance.
 		// We are setting the instance variables' values to be that of the
 		// parameters passed in from GameScreen.
-		this.gameHeight = gameHeight;
+
 		this.midPointY = midPointY;
+		this.menuButtons = ((InputHandler) Gdx.input.getInputProcessor())
+				.getMenuButtons();
 
 		cam = new OrthographicCamera();
 		cam.setToOrtho(true, 136, gameHeight);
@@ -62,6 +84,11 @@ public class GameRenderer {
 		// Call helper methods to initialize instance variables
 		initGameObjects();
 		initAssets();
+
+		transitionColor = new Color();
+		// setupTween
+		prepareTransition(255, 255, 255, .5f);
+
 	}
 
 	private void initGameObjects() {
@@ -77,16 +104,22 @@ public class GameRenderer {
 
 	private void initAssets() {
 		bg = AssetLoader.bg;
+		mmGameLogo = AssetLoader.gameLogo;
 		grass = AssetLoader.grass;
 		logoAnimation = AssetLoader.logoAnimation;
 		logoMid = AssetLoader.logo;
-		logoDown = AssetLoader.logoDown;
-		logoUp = AssetLoader.logoUp;
 		barTopUp = AssetLoader.barTopUp;
 		barTopDown = AssetLoader.barTopDown;
 		bar = AssetLoader.bar;
 		bonusLogoAndroid = AssetLoader.androidLogo;
 		bonusLogoApple = AssetLoader.appleLogo;
+		highScore = AssetLoader.highScore;
+		scoreboard = AssetLoader.scoreboard;
+		retry = AssetLoader.retry;
+		ready = AssetLoader.ready;
+		star = AssetLoader.star;
+		noStar = AssetLoader.noStar;
+		gameOver = AssetLoader.gameOver;
 	}
 
 	private void drawGrass() {
@@ -113,6 +146,20 @@ public class GameRenderer {
 
 	}
 
+	private void drawLogos() {
+		// Draw the first logo
+		if (bLogo1.isVisible() && logo.isAlive()) {
+			batcher.draw(bonusLogoAndroid, bLogo1.getX(), bLogo1.getY(),
+					bLogo1.getWidth(), bLogo1.getHeight());
+		}
+
+		// Draw the second logo
+		if (bLogo2.isVisible() && logo.isAlive()) {
+			batcher.draw(bonusLogoApple, bLogo2.getX(), bLogo2.getY(),
+					bLogo2.getWidth(), bLogo2.getHeight());
+		}
+	}
+
 	private void drawPipes() {
 		// Temporary code! Sorry about the mess :)
 		// We will fix this when we finish the Pipe class.
@@ -128,28 +175,111 @@ public class GameRenderer {
 
 	}
 
-	private void drawLogos() {
-		// Draw the first logo
-		if (bLogo1.isVisible() && logo.isAlive()) {
-			batcher.draw(bonusLogoAndroid, bLogo1.getX(), bLogo1.getY(),
-					bLogo1.getWidth(), bLogo1.getHeight());
-		}
-
-		// Draw the second logo
-		if (bLogo2.isVisible() && logo.isAlive()) {
-			batcher.draw(bonusLogoApple, bLogo2.getX(), bLogo2.getY(),
-					bLogo2.getWidth(), bLogo2.getHeight());
-		}
+	private void drawLogoCentered(float runTime) {
+		batcher.draw(logoAnimation.getKeyFrame(runTime), 59, logo.getY() - 15,
+				logo.getWidth() / 2.0f, logo.getHeight() / 2.0f,
+				logo.getWidth(), logo.getHeight(), 1, 1, logo.getRotation());
 	}
 
-	public void render(float runTime) {
+	private void drawLogo(float runTime) {
+
+		if (logo.shouldntFlap()) {
+			batcher.draw(logoMid, logo.getX(), logo.getY(),
+					logo.getWidth() / 2.0f, logo.getHeight() / 2.0f,
+					logo.getWidth(), logo.getHeight(), 1, 1, logo.getRotation());
+
+		} else {
+			batcher.draw(logoAnimation.getKeyFrame(runTime), logo.getX(),
+					logo.getY(), logo.getWidth() / 2.0f,
+					logo.getHeight() / 2.0f, logo.getWidth(), logo.getHeight(),
+					1, 1, logo.getRotation());
+		}
+
+	}
+
+	private void drawMenuUI() {
+		batcher.draw(mmGameLogo, 136 / 2 - 56, midPointY - 50,
+				mmGameLogo.getRegionWidth() / 1.2f,
+				mmGameLogo.getRegionHeight() / 1.2f);
+
+		for (SimpleButton button : menuButtons) {
+			button.draw(batcher);
+		}
+
+	}
+
+	private void drawScoreboard() {
+		batcher.draw(scoreboard, 22, midPointY - 30, 97, 37);
+
+		batcher.draw(noStar, 25, midPointY - 15, 10, 10);
+		batcher.draw(noStar, 37, midPointY - 15, 10, 10);
+		batcher.draw(noStar, 49, midPointY - 15, 10, 10);
+		batcher.draw(noStar, 61, midPointY - 15, 10, 10);
+		batcher.draw(noStar, 73, midPointY - 15, 10, 10);
+
+		if (myWorld.getScore() > 2) {
+			batcher.draw(star, 73, midPointY - 15, 10, 10);
+		}
+
+		if (myWorld.getScore() > 17) {
+			batcher.draw(star, 61, midPointY - 15, 10, 10);
+		}
+
+		if (myWorld.getScore() > 50) {
+			batcher.draw(star, 49, midPointY - 15, 10, 10);
+		}
+
+		if (myWorld.getScore() > 80) {
+			batcher.draw(star, 37, midPointY - 15, 10, 10);
+		}
+
+		if (myWorld.getScore() > 120) {
+			batcher.draw(star, 25, midPointY - 15, 10, 10);
+		}
+
+		int length = ("" + myWorld.getScore()).length();
+
+		AssetLoader.whiteFont.draw(batcher, "" + myWorld.getScore(),
+				104 - (2 * length), midPointY - 20);
+
+		int length2 = ("" + AssetLoader.getHighScore()).length();
+		AssetLoader.whiteFont.draw(batcher, "" + AssetLoader.getHighScore(),
+				104 - (2.5f * length2), midPointY - 3);
+
+	}
+
+	private void drawRetry() {
+		batcher.draw(retry, 36, midPointY + 10, 66, 14);
+	}
+
+	private void drawReady() {
+		batcher.draw(ready, 36, midPointY - 50, 68, 14);
+	}
+
+	private void drawGameOver() {
+		batcher.draw(gameOver, 24, midPointY - 50, 92, 14);
+	}
+
+	private void drawScore() {
+		int length = ("" + myWorld.getScore()).length();
+		AssetLoader.shadow.draw(batcher, "" + myWorld.getScore(),
+				68 - (3 * length), midPointY - 82);
+		AssetLoader.font.draw(batcher, "" + myWorld.getScore(),
+				68 - (3 * length), midPointY - 83);
+	}
+
+	private void drawHighScore() {
+		batcher.draw(highScore, 22, midPointY - 50, 96, 14);
+	}
+
+	public void render(float delta, float runTime) {
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		shapeRenderer.begin(ShapeType.Filled);
 
-		// Draw Background color
+		// Draw Background color 108, 180, 226, 0.5f
 		shapeRenderer.setColor(108 / 255.0f, 180 / 255.0f, 226 / 255.0f, 1);
 		shapeRenderer.rect(0, 0, 136, midPointY + 66);
 
@@ -165,94 +295,68 @@ public class GameRenderer {
 
 		batcher.begin();
 		batcher.disableBlending();
+
 		batcher.draw(bg, 0, midPointY + 23, 136, 43);
 
-		// 1. Draw Grass
-		drawGrass();
-
-		// 2. Draw Pipes
 		drawPipes();
-		batcher.enableBlending();
 
-		// 3. Draw Bar Tops (requires transparency)
+		batcher.enableBlending();
 		drawBarTops();
 
-		if (logo.shouldntFlap()) {
-			batcher.draw(logoMid, logo.getX(), logo.getY(),
-					logo.getWidth() / 2.0f, logo.getHeight() / 2.0f,
-					logo.getWidth(), logo.getHeight(), 1, 1, logo.getRotation());
+		if (myWorld.isRunning()) {
 
-		} else {
-			batcher.draw(logoAnimation.getKeyFrame(runTime), logo.getX(),
-					logo.getY(), logo.getWidth() / 2.0f,
-					logo.getHeight() / 2.0f, logo.getWidth(), logo.getHeight(),
-					1, 1, logo.getRotation());
+			drawLogo(runTime);
+			drawScore();
+		} else if (myWorld.isReady()) {
+			drawLogo(runTime);
+			drawReady();
+		} else if (myWorld.isMenu()) {
+			drawLogoCentered(runTime);
+			drawMenuUI();
+		} else if (myWorld.isGameOver()) {
+			drawScoreboard();
+			drawLogo(runTime);
+			drawGameOver();
+			drawRetry();
+		} else if (myWorld.isHighScore()) {
+			drawScoreboard();
+			drawLogo(runTime);
+			drawHighScore();
+			drawRetry();
 		}
 
-		// TEMPORARY CODE! We will fix this section later:
-
-		if (myWorld.isReady()) {
-			// Draw shadow first
-			AssetLoader.shadow.draw(batcher, "Touch me", (136 / 2) - (42), 76);
-			// Draw text
-			AssetLoader.font
-					.draw(batcher, "Touch me", (136 / 2) - (42 - 1), 75);
-		} else {
-
-			if (myWorld.isGameOver() || myWorld.isHighScore()) {
-
-				if (myWorld.isGameOver()) {
-					AssetLoader.shadow.draw(batcher, "Game Over", 25, 56);
-					AssetLoader.font.draw(batcher, "Game Over", 24, 55);
-
-					AssetLoader.shadow.draw(batcher, "High Score:", 23, 106);
-					AssetLoader.font.draw(batcher, "High Score:", 22, 105);
-
-					String highScore = AssetLoader.getHighScore() + "";
-
-					// Draw shadow first
-					AssetLoader.shadow.draw(batcher, highScore, (136 / 2)
-							- (3 * highScore.length()), 128);
-					// Draw text
-					AssetLoader.font.draw(batcher, highScore, (136 / 2)
-							- (3 * highScore.length() - 1), 127);
-				} else {
-					AssetLoader.shadow.draw(batcher, "High Score!", 19, 56);
-					AssetLoader.font.draw(batcher, "High Score!", 18, 55);
-				}
-
-				AssetLoader.shadow.draw(batcher, "Try again?", 23, 76);
-				AssetLoader.font.draw(batcher, "Try again?", 24, 75);
-
-				// Convert integer into String
-				String score = myWorld.getScore() + "";
-
-				// Draw shadow first
-				AssetLoader.shadow.draw(batcher, score,
-						(136 / 2) - (3 * score.length()), 12);
-				// Draw text
-				AssetLoader.font.draw(batcher, score,
-						(136 / 2) - (3 * score.length() - 1), 11);
-
-			}
-
-			// Convert integer into String
-			String score = myWorld.getScore() + "";
-
-			// Draw shadow first
-			AssetLoader.shadow.draw(batcher, "" + myWorld.getScore(), (136 / 2)
-					- (3 * score.length()), 12);
-			// Draw text
-			AssetLoader.font.draw(batcher, "" + myWorld.getScore(), (136 / 2)
-					- (3 * score.length() - 1), 11);
-
-		}
+		drawGrass();
 
 		batcher.end();
-
 		batcher.begin();
 		drawLogos();
 		batcher.end();
 
+		drawTransition(delta);
+
+	}
+
+	public void prepareTransition(int r, int g, int b, float duration) {
+		transitionColor.set(r / 255.0f, g / 255.0f, b / 255.0f, 1);
+		alpha.setValue(1);
+		Tween.registerAccessor(Value.class, new ValueAccessor());
+		manager = new TweenManager();
+		Tween.to(alpha, -1, duration).target(0)
+				.ease(TweenEquations.easeOutQuad).start(manager);
+	}
+
+	private void drawTransition(float delta) {
+		if (alpha.getValue() > 0) {
+			manager.update(delta);
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			shapeRenderer.begin(ShapeType.Filled);
+			shapeRenderer.setColor(transitionColor.r, transitionColor.g,
+					transitionColor.b, alpha.getValue());
+			shapeRenderer.rect(0, 0, 136, 300);
+			shapeRenderer.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
+
+		}
 	}
 }
