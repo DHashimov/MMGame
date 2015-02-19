@@ -8,9 +8,12 @@ import com.mentormate.mmgame.MMGame;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
-	protected void onCreate (Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new MMGame(), config);
+
+		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
+		cfg.useGL20 = false;
+
+		initialize(new MMGame(), cfg);
 	}
 }

@@ -86,7 +86,7 @@ public class AssetLoader {
 
 		TextureRegion[] birds = { logoDown, logo, logoUp };
 		logoAnimation = new Animation(0.06f, birds);
-		logoAnimation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
+		logoAnimation.setPlayMode(Animation.LOOP_PINGPONG);
 
 		barTopUp = new TextureRegion(texture, 192, 0, 24, 14);
 		// Create by flipping existing skullUp
