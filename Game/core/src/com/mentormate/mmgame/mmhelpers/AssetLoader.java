@@ -117,7 +117,7 @@ public class AssetLoader {
 		shadow.setScale(.25f, -.25f);
 
 		// Create (or retrieve existing) preferences file
-		prefs = Gdx.app.getPreferences("ZombieBird");
+		prefs = Gdx.app.getPreferences("MMGame");
 
 		if (!prefs.contains("highScore")) {
 			prefs.putInteger("highScore", 0);

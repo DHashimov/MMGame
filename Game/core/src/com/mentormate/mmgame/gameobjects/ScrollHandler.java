@@ -105,6 +105,15 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 
 	}
 
+	public void onRestart() {
+		frontGrass.onRestart(0, SCROLL_SPEED);
+		backGrass.onRestart(frontGrass.getTailX(), SCROLL_SPEED);
+		pipe1.onRestart(210, SCROLL_SPEED);
+		bonusLogo1.onRestart(pipe1.getTailX() + PIPE_GAP / 2, SCROLL_SPEED);
+		pipe2.onRestart(pipe1.getTailX() + PIPE_GAP, SCROLL_SPEED);
+		bonusLogo2.onRestart(pipe2.getTailX() + PIPE_GAP / 2, SCROLL_SPEED);
+	}
+
 	// The getters for our five instance variables
 	public Grass getFrontGrass() {
 		return frontGrass;

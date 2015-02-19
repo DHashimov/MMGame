@@ -93,4 +93,9 @@ public class Pipe extends Scrollable {
 		return groundY;
 	}
 
+	public void onRestart(float x, float scrollSpeed) {
+		velocity.x = scrollSpeed;
+		reset(x);
+	}
+
 }
