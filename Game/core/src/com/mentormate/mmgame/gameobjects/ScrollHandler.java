@@ -86,6 +86,7 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 				bonusLogo1.setScored(true);
 				AssetLoader.coin.play();
 				addScore(1);
+				bonusLogo1.setVisible(false);
 				return true;
 			} else {
 				return true;
@@ -95,6 +96,7 @@ public class ScrollHandler {// ScrollHandler will create all six objects that
 				bonusLogo2.setScored(true);
 				AssetLoader.coin.play();
 				addScore(1);
+				bonusLogo2.setVisible(false);
 				return true;
 			} else {
 				return true;

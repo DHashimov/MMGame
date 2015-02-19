@@ -9,7 +9,8 @@ public class BonusLogo extends Scrollable {
 
 	private Random r;
 	private Circle boundingCircle;
-
+	private boolean visible = true;
+	
 	private boolean isScored = false;
 
 	// When BonusLogo's constructor is invoked, invoke the super (Scrollable)
@@ -45,6 +46,7 @@ public class BonusLogo extends Scrollable {
 		// Change the height to a random number
 		position.y = r.nextInt(90) + 15;
 		isScored = false;
+		setVisible(true);
 	}
 
 	public Circle getBoundingCircle() {
@@ -62,6 +64,14 @@ public class BonusLogo extends Scrollable {
 	public void onRestart(float x, float scrollSpeed) {
 		velocity.x = scrollSpeed;
 		reset(x);
+	}
+	
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 }
